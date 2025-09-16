@@ -28,13 +28,25 @@ class ChonkiBoi extends Seeder
         // Pobierz ID jednostek
         $unitIds = DB::table('units')->pluck('id')->toArray();
 
+        // Tablica słów dla nazw produktów (łacińsko-lorem ipsum)
+        $words = [
+            'Lorem', 'Ipsum', 'Dolor', 'Sit', 'Amet', 'Consectetur', 'Adipiscing', 
+            'Elit', 'Sed', 'Do', 'Cum', 'Tempor', 'Incididunt', 'Ut', 'Labore', 
+            'Et', 'Dolore', 'Magna', 'Aliqua'
+        ];
+
         while ($created < $total) {
             $productsBatch = [];
             $barcodesBatch = [];
 
             // Przygotuj batch produktów
             for ($i = 0; $i < $batchSize && $created < $total; $i++, $created++) {
-                $name = 'Produkt ' . Str::random(8);
+                // Losowa nazwa produktu: 2–4 słowa z tablicy
+                $name = implode(' ', array_map(
+                    fn() => $words[array_rand($words)],
+                    range(1, rand(2, 4))
+                ));
+
                 $price = number_format(rand(100, 10000) / 100, 2, '.', ''); // 1.00 - 100.00
                 $unitId = $unitIds[array_rand($unitIds)];
 

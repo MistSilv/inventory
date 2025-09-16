@@ -1,21 +1,22 @@
 <x-layout>
     <div class="container mx-auto p-6">
-        <h1 class="text-2xl font-bold mb-4">Products</h1>
+        <h1 class="text-2xl font-bold mb-4 text-amber-400">Products</h1>
 
-        <a href="{{ route('products.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mb-4 inline-block">
+        <a href="{{ route('products.create') }}" 
+           class="bg-green-900 text-white px-4 py-2 rounded shadow hover:bg-green-600 mb-4 inline-block transition">
             Add New Product
         </a>
 
         @if(session('success'))
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+            <div class="bg-amber-700/20 border border-amber-700 text-amber-400 px-4 py-3 rounded mb-4">
                 {{ session('success') }}
             </div>
         @endif
 
         <div class="overflow-x-auto">
-            <table class="min-w-full bg-white border border-gray-200">
-                <thead>
-                    <tr class="bg-gray-100 border-b">
+            <table class="min-w-full bg-gray-950 border border-gray-800 rounded-lg overflow-hidden shadow-lg">
+                <thead class="bg-black text-amber-400">
+                    <tr>
                         <th class="px-4 py-2 text-left">ID</th>
                         <th class="px-4 py-2 text-left">Abaco ID</th>
                         <th class="px-4 py-2 text-left">Name</th>
@@ -24,9 +25,9 @@
                         <th class="px-4 py-2 text-left">Barcodes</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="text-gray-200">
                     @forelse($products as $product)
-                        <tr class="border-b hover:bg-gray-50">
+                        <tr class="border-b border-gray-800 hover:bg-gray-800 transition">
                             <td class="px-4 py-2">{{ $product->id }}</td>
                             <td class="px-4 py-2">{{ $product->id_abaco ?? '-' }}</td>
                             <td class="px-4 py-2">{{ $product->name }}</td>

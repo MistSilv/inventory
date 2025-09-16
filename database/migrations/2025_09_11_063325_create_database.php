@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -128,6 +129,18 @@ return new class extends Migration
             $table->timestamps();
         });
 
+       Schema::create('temp_census_products', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('user_id'); // kto dodaje
+            $table->unsignedBigInteger('product_id');
+            $table->string('name');       // nazwa produktu
+            $table->string('unit')->nullable(); // jednostka miary
+            $table->decimal('quantity', 15, 3)->default(0);
+            $table->decimal('price', 15, 2)->nullable();
+            $table->timestamps();
+        });
+
+
 
     }
 
@@ -146,5 +159,6 @@ return new class extends Migration
         Schema::dropIfExists('products');
         Schema::dropIfExists('units');
         Schema::dropIfExists('stocktaking_logs');
+        Schema::dropIfExists('temp_census_products');
     }
 };

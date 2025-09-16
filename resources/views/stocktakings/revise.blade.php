@@ -1,78 +1,82 @@
-<x-layout>
+<x-layout title="Przegląd Spisu – {{ $regionStocktaking->region->name }}">
+
 <div class="container mx-auto px-4">
-    <h1 class="text-2xl font-bold mb-4">
+
+    <h1 class="text-3xl font-bold mb-6 text-amber-400">
         Przegląd spisu – {{ $regionStocktaking->region->name }}
     </h1>
 
-    <div class="mb-6">
-        <p><strong>Stocktaking:</strong> {{ $regionStocktaking->stocktaking->title ?? '-' }}</p>
-        <p><strong>Status:</strong> {{ $regionStocktaking->stocktaking->status }}</p>
-        <p><strong>Data:</strong> {{ $regionStocktaking->stocktaking->date }}</p>
+    <div class="mb-6 bg-gray-900 border-2 border-amber-700 rounded-xl p-4 shadow">
+        <p><strong class="text-amber-400">Stocktaking:</strong> <span class="text-gray-200">{{ $regionStocktaking->stocktaking->title ?? '-' }}</span></p>
+        <p><strong class="text-amber-400">Status:</strong> <span class="text-gray-200">{{ $regionStocktaking->stocktaking->status }}</span></p>
+        <p><strong class="text-amber-400">Data:</strong> <span class="text-gray-200">{{ $regionStocktaking->stocktaking->date }}</span></p>
     </div>
 
     <form id="stocktaking-form" action="{{ route('stocktakings.adjustments.store', $regionStocktaking->id) }}" method="POST">
         @csrf
-        <h2 class="text-xl font-semibold mb-2">Agregacja produktów</h2>
+        <h2 class="text-2xl font-semibold mb-4 text-amber-300">Agregacja produktów</h2>
+
         <div class="overflow-x-auto">
-            <table class="table-auto w-full border border-gray-300 border-separate" style="border-spacing: 0 4px;">
-                <thead class="bg-gray-200">
+            <table class="table-auto w-full border-separate border-spacing-y-2">
+                <thead class="bg-black text-amber-400">
                     <tr>
-                        <th class="px-4 py-2 border-b border-gray-300">Poz.</th>
-                        <th class="px-4 py-2 border-b border-gray-300">Towar</th>
-                        <th class="px-4 py-2 border-b border-gray-300">Barcode</th>
-                        <th class="px-4 py-2 border-b border-gray-300">Jm</th>
-                        <th class="px-4 py-2 border-b border-gray-300 text-right">Ilość</th>
-                        <th class="px-4 py-2 border-b border-gray-300 text-right">Cena jedn.</th>
-                        <th class="px-4 py-2 border-b border-gray-300 text-right">Wartość</th>
-                        <th class="px-4 py-2 border-b border-gray-300 text-center">Akcje</th>
+                        <th class="px-4 py-2">Poz.</th>
+                        <th class="px-4 py-2">Towar</th>
+                        <th class="px-4 py-2">Barcode</th>
+                        <th class="px-4 py-2">Jm</th>
+                        <th class="px-4 py-2 text-right">Ilość</th>
+                        <th class="px-4 py-2 text-right">Cena jedn.</th>
+                        <th class="px-4 py-2 text-right">Wartość</th>
+                        <th class="px-4 py-2 text-center">Akcje</th>
                     </tr>
                 </thead>
-                @php
-                    $sortedProducts = collect($aggregatedProducts)
-                        ->sortBy('product_id') // sortowanie malejąco po product_id
-                        ->values(); // reset indeksów
-                @endphp
                 <tbody id="products-body">
                     @foreach($aggregatedProducts as $index => $row)
-                    <tr class="bg-white shadow-md rounded-lg product-row" 
-                        data-product-id="{{ $row['product_id'] }}"
-                        data-batch-key="{{ $row['batch_key'] }}"
-                        data-adjustment-id="{{ $row['adjustment_id'] }}">
-                        <td class="px-4 py-2 border border-gray-200">{{ $loop->iteration }}</td>
-                        <td class="px-4 py-2 border border-gray-200">{{ $row['product_name'] }}</td>
-                        <td class="px-4 py-2 border border-gray-200">{{ $row['barcode'] }}</td>
-                        <td class="px-4 py-2 border border-gray-200">{{ $row['unit'] }}</td>
+                        <tr class="bg-gray-900 text-gray-200 shadow rounded-xl product-row"
+                            data-product-id="{{ $row['product_id'] }}"
+                            data-batch-key="{{ $row['batch_key'] }}"
+                            data-adjustment-id="{{ $row['adjustment_id'] }}">
+                            <td class="px-4 py-2 border border-gray-700">{{ $loop->iteration }}</td>
+                            <td class="px-4 py-2 border border-gray-700">{{ $row['product_name'] }}</td>
+                            <td class="px-4 py-2 border border-gray-700">{{ $row['barcode'] }}</td>
+                            <td class="px-4 py-2 border border-gray-700">{{ $row['unit'] }}</td>
 
-                        <td class="px-4 py-2 border border-gray-200 text-right">
-                            <span class="quantity-text">{{ $row['quantity'] }}</span>
-                            <input type="text" name="products[{{ $index }}][quantity]" value="{{ $row['quantity'] }}" class="border px-2 py-1 w-20 text-right editable hidden">
-                        </td>
-                        <td class="px-4 py-2 border border-gray-200 text-right">
-                            <span class="unit-price-text">{{ $row['unit_price'] }}</span>
-                            <input type="text" name="products[{{ $index }}][unit_price]" value="{{ $row['unit_price'] }}" class="border px-2 py-1 w-20 text-right editable hidden">
-                        </td>
-                        <td class="px-4 py-2 border border-gray-200 text-right value-cell">{{ number_format($row['value'], 2, ',', ' ') }}</td>
-                        <td class="px-4 py-2 border border-gray-200 text-center">
-                            <button type="button" class="edit-btn cursor-pointer">✏️</button>
-                            <button type="button" class="save-btn cursor-pointer hidden bg-green-200 px-2 py-1 rounded">💾</button>
-                            <button type="button" class="cancel-btn cursor-pointer hidden bg-red-200 px-2 py-1 rounded">❌</button>
-                            <button type="button" class="split-btn cursor-pointer bg-blue-200 px-2 py-1 rounded">➕ Podziel</button>
-                        </td>
-                    </tr>
+                            <td class="px-4 py-2 border border-gray-700 text-right">
+                                <span class="quantity-text">{{ $row['quantity'] }}</span>
+                                <input type="text" name="products[{{ $index }}][quantity]" value="{{ $row['quantity'] }}" class="border px-2 py-1 w-20 text-right editable hidden bg-gray-800 text-gray-200">
+                            </td>
+                            <td class="px-4 py-2 border border-gray-700 text-right">
+                                <span class="unit-price-text">{{ $row['unit_price'] }}</span>
+                                <input type="text" name="products[{{ $index }}][unit_price]" value="{{ $row['unit_price'] }}" class="border px-2 py-1 w-20 text-right editable hidden bg-gray-800 text-gray-200">
+                            </td>
+                            <td class="px-4 py-2 border border-gray-700 text-right value-cell">{{ number_format($row['value'], 2, ',', ' ') }}</td>
+                            <td class="px-4 py-2 border border-gray-700 text-center space-x-1">
+                                <button type="button" class="edit-btn cursor-pointer bg-amber-900 text-black px-2 py-1 rounded hover:bg-amber-600">✏️</button>
+                                <button type="button" class="save-btn cursor-pointer hidden bg-green-900 text-black px-2 py-1 rounded hover:bg-green-600">💾</button>
+                                <button type="button" class="cancel-btn cursor-pointer hidden bg-red-900 text-black px-2 py-1 rounded hover:bg-red-600">❌</button>
+                                <button type="button" class="split-btn cursor-pointer bg-blue-900 text-white px-2 py-1 rounded hover:bg-blue-600">➕ Podziel</button>
+                            </td>
+                        </tr>
                     @endforeach
                 </tbody>
                 <tfoot>
-                    <tr class="bg-gray-100 font-bold">
-                        <td colspan="6" class="text-right px-4 py-2 border border-gray-200">Łączna wartość:</td>
-                        <td id="total-value" class="text-right px-4 py-2 border border-gray-200">0,00</td>
-                        <td class="border border-gray-200"></td>
+                    <tr class="bg-black text-amber-300 font-bold">
+                        <td colspan="6" class="text-right px-4 py-2">Łączna wartość:</td>
+                        <td id="total-value" class="text-right px-4 py-2">0,00</td>
+                        <td></td>
                     </tr>
                 </tfoot>
             </table>
         </div>
 
         <div class="mt-4">
-            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Zapisz wszystkie zmiany</button>
+            <button type="submit" class="px-4 py-2 bg-green-900 text-white rounded hover:bg-green-600 font-semibold shadow">
+                Zapisz wszystkie zmiany
+            </button>
+
+            <button type="button" id="generate-report" class="px-4 py-2 bg-blue-900 text-white rounded hover:bg-blue-600 font-semibold shadow">
+                📝 Generuj Spis z natury
+            </button>
         </div>
     </form>
 </div>
@@ -129,7 +133,7 @@ function initRowEvents(row) {
         inputs.forEach(input => {
             input.classList.remove('hidden');
             input.removeAttribute('readonly');
-            input.classList.add('bg-yellow-100');
+            input.classList.add('bg-transparent', 'text-white', 'border', 'border-amber-700', 'px-2', 'py-1', 'rounded');
             input.addEventListener('input', () => updateRowValue(row));
         });
 
@@ -139,6 +143,7 @@ function initRowEvents(row) {
         saveBtn.classList.remove('hidden');
         cancelBtn.classList.remove('hidden');
     });
+
 
     cancelBtn.addEventListener('click', () => {
         inputs.forEach((input, i) => {
@@ -346,4 +351,86 @@ document.getElementById('stocktaking-form').addEventListener('submit', function(
     });
 });
 </script>
+
+
+
+
+
+<script>
+document.getElementById('generate-report').addEventListener('click', function() {
+    const owner = "Jarosławdis Sp. z o.o."; // Możesz dynamicznie pobrać z danych
+    const date = new Date().toLocaleDateString('pl-PL');
+    const rows = document.querySelectorAll('#products-body tr');
+
+    let totalValue = 0;
+    let tableRowsHtml = '';
+
+    rows.forEach((row, index) => {
+        const name = row.cells[1].textContent;
+        const unit = row.cells[3].textContent;
+        const qty = row.querySelector('input[name*="[quantity]"]').value || row.querySelector('.quantity-text').textContent;
+        const price = row.querySelector('input[name*="[unit_price]"]').value || row.querySelector('.unit-price-text').textContent;
+        const value = parseFloat(qty.replace(',', '.')) * parseFloat(price.replace(',', '.'));
+        totalValue += value;
+
+        tableRowsHtml += `<tr>
+            <td>${index + 1}</td>
+            <td>${name}</td>
+            <td>${unit}</td>
+            <td>${qty}</td>
+            <td>${parseFloat(price).toFixed(2)}</td>
+            <td>${value.toFixed(2)}</td>
+        </tr>`;
+    });
+
+    const reportHtml = `
+        <html>
+        <head>
+            <title>Spis z natury</title>
+            <style>
+                body { font-family: Arial, sans-serif; padding: 20px; }
+                table { border-collapse: collapse; width: 100%; }
+                th, td { border: 1px solid #000; padding: 8px; text-align: center; }
+                th { background-color: #f0f0f0; }
+                h1, h2 { text-align: center; }
+            </style>
+        </head>
+        <body>
+            <h1>Spis z natury</h1>
+            <p><strong>Firma/Właściciel:</strong> ${owner}</p>
+            <p><strong>Data sporządzenia:</strong> ${date}</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Lp.</th>
+                        <th>Składnik remanentu</th>
+                        <th>Jednostka miary</th>
+                        <th>Ilość</th>
+                        <th>Cena jednostkowa [PLN]</th>
+                        <th>Wartość [PLN]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${tableRowsHtml}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="5"><strong>Łączna wartość:</strong></td>
+                        <td>${totalValue.toFixed(2)}</td>
+                    </tr>
+                </tfoot>
+            </table>
+            <p>Spis zakończono na pozycji ${rows.length}.</p>
+            <p><strong>Podpisy osób sporządzających spis:</strong> ________________________</p>
+            <p><strong>Podpis właściciela zakładu:</strong> ________________________</p>
+        </body>
+        </html>
+    `;
+
+    const newWindow = window.open('', '_blank');
+    newWindow.document.write(reportHtml);
+    newWindow.document.close();
+});
+</script>
+
 </x-layout>
