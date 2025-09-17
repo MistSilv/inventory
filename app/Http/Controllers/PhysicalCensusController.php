@@ -64,44 +64,7 @@ class PhysicalCensusController extends Controller
         return view('physical_censuses.show', compact('regionStocktaking', 'census'));
     }
 
-    public function addTempProduct(Request $request)
-    {
-        $validated = $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'quantity'   => 'required|numeric|min:0',
-            'price'      => 'nullable|numeric',
-            'name'       => 'required|string',
-            'unit'       => 'nullable|string',
-        ]);
-
-        $product = TempCensusProduct::updateOrCreate(
-            [
-                'user_id' => Auth::id(),
-                'product_id' => $validated['product_id']
-            ],
-            [
-                'quantity' => $validated['quantity'],
-                'price'    => $validated['price'] ?? 0,
-                'name'     => $validated['name'],
-                'unit'     => $validated['unit'] ?? '',
-            ]
-        );
-
-        return response()->json($product);
-    }
-
-    public function removeTempProduct(Request $request)
-    {
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-        ]);
-
-        TempCensusProduct::where('user_id', Auth::id())
-            ->where('product_id', $request->product_id)
-            ->delete();
-
-        return response()->json(['status' => 'removed']);
-    }
+    
 
     public function getTempProducts()
     {
